@@ -3,6 +3,7 @@ package com.ayrton.clinic.repository;
 import com.ayrton.clinic.enums.BookingStatus;
 import com.ayrton.clinic.model.Booking;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -25,4 +26,8 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
     List<Booking> findByAppointmentDate(LocalDateTime appointmentDate);
 
     List<Booking> findByStatus(BookingStatus status);
+
+    // Verifica se há sobreposição
+    @Query("{ 'employeeId': ?0, 'appointmentDate': { $lt: ?2 }, 'endTime': { $gt: ?1 } }")
+    List<Booking> findOverlappingBookings(String employeeId, LocalDateTime start, LocalDateTime end);
 }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class BookingDTO {
@@ -26,8 +27,13 @@ public class BookingDTO {
     private LocalDateTime appointmentDate;
 
     @NotNull
+    private LocalDateTime endTime;
+
+    @NotNull
     private BookingStatus status;
 
     @Size(min = 0, max = 750)
     private String notes;
+
+    private List<String> resourceIds;
 }

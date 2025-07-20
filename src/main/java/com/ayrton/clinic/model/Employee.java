@@ -1,6 +1,7 @@
 package com.ayrton.clinic.model;
 
 import com.ayrton.clinic.enums.EmployeeSpeciality;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,7 +16,10 @@ public class Employee {
     @Id
     private String id;
     private String name;
+
+    @Email
     private String email;
+
     private String phone;
     private double rating;
     private List<EmployeeSchedule> schedules = new ArrayList<>();

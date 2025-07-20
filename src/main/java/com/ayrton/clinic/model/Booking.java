@@ -17,6 +17,7 @@ public class Booking {
     private String employeeId;
     private String serviceId;
     private LocalDateTime appointmentDate;
+    private LocalDateTime endTime;
     private BookingStatus status;
     private String notes;
 }
