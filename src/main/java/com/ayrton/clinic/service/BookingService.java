@@ -187,7 +187,7 @@ public class BookingService {
         Optional<Booking> bookingOpt = bookingRepository.findById(bookingId);
 
         if (bookingOpt.isEmpty()) {
-            return false; // ou lançar exceção, se preferir
+            return false;
         }
 
         // Apagar usos de recursos associados ao booking
