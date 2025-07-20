@@ -3,10 +3,12 @@ package com.ayrton.clinic.service;
 import com.ayrton.clinic.dto.BookingDTO;
 import com.ayrton.clinic.model.Booking;
 import com.ayrton.clinic.model.Catalog;
+import com.ayrton.clinic.model.Promotion;
 import com.ayrton.clinic.model.ResourceUsage;
 import com.ayrton.clinic.repository.BookingRepository;
 import com.ayrton.clinic.repository.CatalogRepository;
 import com.ayrton.clinic.enums.BookingStatus;
+import com.ayrton.clinic.repository.PromotionRepository;
 import com.ayrton.clinic.repository.ResourceUsageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,9 @@ public class BookingService {
 
     @Autowired
     ResourceUsageRepository resourceUsageRepository;
+
+    @Autowired
+    PromotionRepository promotionRepository;
 
     public Booking createBooking(BookingDTO dto) {
         // 1. Buscar o serviço (Catalog) para saber duração
@@ -108,6 +113,28 @@ public class BookingService {
     public List<Booking> getByStatus(BookingStatus status){
         return bookingRepository.findByStatus(status);
     }
+
+    public double pricePromotion(double price, String promotionCode) {
+        List<Promotion> promotions = promotionRepository.findByCodeIgnoreCase(promotionCode);
+
+        for (Promotion promotion : promotions) {
+            if (promotion.isActive() && isValidNow(promotion)) {
+                double desconto = price * (promotion.getDiscountPercent() / 100.0);
+                promotion.setActive(false); // inativa após uso
+                promotionRepository.save(promotion);
+                return price - desconto;
+            }
+        }
+
+        return price; // Sem promoção válida
+    }
+
+    private boolean isValidNow(Promotion promotion) {
+        LocalDateTime now = LocalDateTime.now();
+        return (promotion.getValidFrom().isBefore(now) || promotion.getValidFrom().isEqual(now)) &&
+                (promotion.getValidTo().isAfter(now) || promotion.getValidTo().isEqual(now));
+    }
+
 
     public Optional<Booking> updateBooking(BookingDTO dto) {
         Optional<Booking> existingOpt = bookingRepository.findById(dto.getId());
