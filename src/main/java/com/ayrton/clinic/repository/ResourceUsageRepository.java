@@ -25,6 +25,9 @@ public interface ResourceUsageRepository extends MongoRepository<ResourceUsage, 
 
     List<ResourceUsage> findByEndTime(LocalDateTime endTime);
 
+    List<ResourceUsage> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
+
+
     boolean existsByResourceIdAndStartTimeBeforeAndEndTimeAfter(
             String resourceId, LocalDateTime end, LocalDateTime start
     );

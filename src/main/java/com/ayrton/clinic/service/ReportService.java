@@ -1,16 +1,15 @@
 package com.ayrton.clinic.service;
 
 import com.ayrton.clinic.dto.ReportDTO;
+import com.ayrton.clinic.enums.BookingStatus;
 import com.ayrton.clinic.enums.ReportType;
-import com.ayrton.clinic.model.Report;
-import com.ayrton.clinic.repository.EmployeeRepository;
-import com.ayrton.clinic.repository.ReportRepository;
+import com.ayrton.clinic.model.*;
+import com.ayrton.clinic.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ayrton.clinic.enums.EmployeeSpeciality;
-import com.ayrton.clinic.model.Employee;
 
 
 import java.time.LocalDateTime;
@@ -25,11 +24,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReportService {
 
-    @Autowired
     private final ReportRepository reportRepository;
-
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
+    private final ResourceUsageRepository resourceUsageRepository;
+    private final BookingRepository bookingRepository;
+    private final ResourceRepository resourceRepository;
 
     public ReportDTO generateReport(ReportType type) {
         if (type == ReportType.RECEITA) {
@@ -108,19 +107,101 @@ public class ReportService {
 
     private Map<String, Object> generateOcupacaoReport() {
         Map<String, Object> data = new HashMap<>();
-        // TODO: lógica real aqui
-        data.put("salasOcupadas", 3);
-        data.put("salasLivres", 2);
-        data.put("ocupacaoPercentual", "60%");
+
+        LocalDateTime inicioDoMes = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime fimDoMes = inicioDoMes.plusMonths(1);
+
+        // --- 1. Funcionário mais ocupado ---
+        List<Booking> bookings = bookingRepository.findByAppointmentDateBetweenAndStatus(
+                inicioDoMes, fimDoMes, BookingStatus.CONCLUIDO);
+
+        Map<String, Long> tempoPorFuncionario = new HashMap<>();
+
+        for (Booking booking : bookings) {
+            if (booking.getEmployeeId() != null && booking.getEndTime() != null && booking.getAppointmentDate() != null) {
+                long minutos = java.time.Duration.between(booking.getAppointmentDate(), booking.getEndTime()).toMinutes();
+                tempoPorFuncionario.merge(booking.getEmployeeId(), minutos, Long::sum);
+            }
+        }
+
+        String funcionarioMaisOcupadoId = tempoPorFuncionario.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        long tempoFuncionarioMaisOcupado = funcionarioMaisOcupadoId != null ? tempoPorFuncionario.get(funcionarioMaisOcupadoId) : 0;
+
+        // --- 2. Recurso mais utilizado ---
+        List<ResourceUsage> usos = resourceUsageRepository.findByStartTimeBetween(inicioDoMes, fimDoMes);
+
+        Map<String, Long> tempoPorRecurso = new HashMap<>();
+
+        for (ResourceUsage usage : usos) {
+            if (usage.getStartTime() != null && usage.getEndTime() != null) {
+                long minutos = java.time.Duration.between(usage.getStartTime(), usage.getEndTime()).toMinutes();
+                tempoPorRecurso.merge(usage.getResourceId(), minutos, Long::sum);
+            }
+        }
+
+        String recursoMaisUsadoId = tempoPorRecurso.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        long tempoRecursoMaisUsado = recursoMaisUsadoId != null ? tempoPorRecurso.get(recursoMaisUsadoId) : 0;
+
+        // --- 3. Ocupação total de recursos ---
+        List<Resource> recursosAtivos = resourceRepository.findByActiveTrue();
+        int totalRecursos = recursosAtivos.size();
+
+        // Tempo total possível (considerando recursos disponíveis em tempo integral no mês)
+        long minutosTotaisMes = java.time.Duration.between(inicioDoMes, fimDoMes).toMinutes();
+        long capacidadeTotalMinutos = minutosTotaisMes * totalRecursos;
+
+        long tempoTotalUsado = tempoPorRecurso.values().stream().mapToLong(Long::longValue).sum();
+
+        double ocupacaoPercentual = capacidadeTotalMinutos > 0
+                ? (tempoTotalUsado * 100.0 / capacidadeTotalMinutos)
+                : 0.0;
+
+        data.put("mesReferencia", inicioDoMes.getMonth().toString());
+        data.put("funcionarioMaisOcupadoId", funcionarioMaisOcupadoId);
+        data.put("tempoFuncionarioMaisOcupadoMin", tempoFuncionarioMaisOcupado);
+        data.put("recursoMaisUtilizadoId", recursoMaisUsadoId);
+        data.put("tempoRecursoMaisUtilizadoMin", tempoRecursoMaisUsado);
+        data.put("totalRecursosAtivos", totalRecursos);
+        data.put("ocupacaoPercentual", String.format("%.2f%%", ocupacaoPercentual));
+
         return data;
     }
 
     private Map<String, Object> generateGeralReport() {
         Map<String, Object> data = new HashMap<>();
-        // TODO: lógica real aqui
-        data.put("pacientesHoje", 25);
-        data.put("consultasRealizadas", 40);
-        data.put("cancelamentos", 5);
+
+        LocalDateTime hoje = LocalDateTime.now();
+        LocalDateTime inicioDoDia = hoje.withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime fimDoDia = inicioDoDia.plusDays(1);
+
+        LocalDateTime inicioDoMes = hoje.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime fimDoMes = inicioDoMes.plusMonths(1);
+
+        // --- Pacientes atendidos hoje ---
+        long pacientesHoje = bookingRepository.countByAppointmentDateBetweenAndStatus(
+                inicioDoDia, fimDoDia, BookingStatus.CONCLUIDO);
+
+        // --- Consultas realizadas no mês ---
+        long consultasRealizadas = bookingRepository.countByAppointmentDateBetweenAndStatus(
+                inicioDoMes, fimDoMes, BookingStatus.CONCLUIDO);
+
+        // --- Cancelamentos no mês ---
+        long cancelamentos = bookingRepository.countByAppointmentDateBetweenAndStatus(
+                inicioDoMes, fimDoMes, BookingStatus.CANCELADO);
+
+        data.put("mesReferencia", inicioDoMes.getMonth().toString());
+        data.put("pacientesHoje", pacientesHoje);
+        data.put("consultasRealizadas", consultasRealizadas);
+        data.put("cancelamentos", cancelamentos);
+
         return data;
     }
 

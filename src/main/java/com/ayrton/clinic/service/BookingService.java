@@ -114,19 +114,23 @@ public class BookingService {
         return bookingRepository.findByStatus(status);
     }
 
-    public double pricePromotion(double price, String promotionCode) {
+    public double applyPromotionToPrice(double price, String promotionCode) {
         List<Promotion> promotions = promotionRepository.findByCodeIgnoreCase(promotionCode);
 
         for (Promotion promotion : promotions) {
             if (promotion.isActive() && isValidNow(promotion)) {
-                double desconto = price * (promotion.getDiscountPercent() / 100.0);
-                promotion.setActive(false); // inativa após uso
+                double discount = price * (promotion.getDiscountPercent() / 100.0);
+
+                // Opcional: se quiser apenas "usar" uma vez
+                promotion.setActive(false);
                 promotionRepository.save(promotion);
-                return price - desconto;
+
+                return price - discount;
             }
         }
 
-        return price; // Sem promoção válida
+        // Nenhuma promoção válida encontrada
+        return price;
     }
 
     private boolean isValidNow(Promotion promotion) {

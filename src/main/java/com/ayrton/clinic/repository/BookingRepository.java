@@ -27,6 +27,11 @@ public interface BookingRepository extends MongoRepository<Booking, String> {
 
     List<Booking> findByStatus(BookingStatus status);
 
+    List<Booking> findByAppointmentDateBetweenAndStatus(LocalDateTime start, LocalDateTime end, BookingStatus status);
+
+    long countByAppointmentDateBetweenAndStatus(LocalDateTime start, LocalDateTime end, BookingStatus status);
+
+
     // Verifica se há sobreposição
     @Query("{ 'employeeId': ?0, 'appointmentDate': { $lt: ?2 }, 'endTime': { $gt: ?1 } }")
     List<Booking> findOverlappingBookings(String employeeId, LocalDateTime start, LocalDateTime end);

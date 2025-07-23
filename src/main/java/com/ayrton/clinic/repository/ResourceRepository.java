@@ -21,4 +21,7 @@ public interface ResourceRepository extends MongoRepository<Resource, String> {
     List<Resource> findByTypeIgnoreCase(String type);
 
     List<Resource> findByActive(boolean active);
+
+    List<Resource> findByActiveTrue();
+
 }

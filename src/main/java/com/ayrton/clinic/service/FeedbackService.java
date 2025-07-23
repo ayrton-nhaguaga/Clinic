@@ -51,13 +51,15 @@ public class FeedbackService {
         return feedbackRepository.findByCreatedAt(createdAt);
     }
 
-    public boolean deleteFeedback(String bookingId){
-        Optional<Feedback> feedback = feedbackRepository.findByBookingId(bookingId);
+    public boolean deleteFeedback(String bookingId) {
+        Optional<Feedback> feedbackOpt = feedbackRepository.findByBookingId(bookingId);
 
-        if (!feedback.isEmpty()){
-            feedbackRepository.delete(feedback.get());
+        if (feedbackOpt.isPresent()) {
+            feedbackRepository.delete(feedbackOpt.get());
             return true;
         }
+
         return false;
     }
+
 }
