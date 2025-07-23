@@ -6,7 +6,6 @@ import com.ayrton.clinic.enums.ReportType;
 import com.ayrton.clinic.model.*;
 import com.ayrton.clinic.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ayrton.clinic.enums.EmployeeSpeciality;

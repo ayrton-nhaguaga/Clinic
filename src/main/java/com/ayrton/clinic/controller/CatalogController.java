@@ -30,31 +30,31 @@ public class CatalogController {
         return new ResponseEntity<>(catalogs, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Optional<Catalog>> getById(@RequestParam String id){
         Optional<Catalog> catalog = catalogService.getById(id);
         return new ResponseEntity<>(catalog, HttpStatus.OK);
     }
 
-    @GetMapping("/name")
+    @GetMapping("/name/{name}")
     public ResponseEntity<List<Catalog>> getByNameIgnoreCase(@RequestParam String name){
         List<Catalog> catalogs = catalogService.getByNameIgnoreCase(name);
         return new ResponseEntity<>(catalogs, HttpStatus.OK);
     }
 
-    @GetMapping("/price")
+    @GetMapping("/price/{price}")
     public ResponseEntity<List<Catalog>> getByPrice(@RequestParam double price){
         List<Catalog> catalogs = catalogService.getByPrice(price);
         return new ResponseEntity<>(catalogs, HttpStatus.OK);
     }
 
-    @GetMapping("/durationMinutes")
+    @GetMapping("/duration-minutes/{durationMinutes}")
     public ResponseEntity<List<Catalog>> getByDurationMinutes(@RequestParam int durationMinutes){
         List<Catalog> catalogs = catalogService.getByDurationMinutes(durationMinutes);
         return new ResponseEntity<>(catalogs, HttpStatus.OK);
     }
 
-    @PutMapping("/name")
+    @PutMapping("/name/{name}")
     public ResponseEntity<List<Catalog>> updateCatalogByName(@RequestParam String name, @RequestBody CatalogDTO dto){
         List<Catalog> updatedList = catalogService.updateCatalogByName(name, dto);
 
@@ -64,7 +64,7 @@ public class CatalogController {
         return ResponseEntity.ok(updatedList);
     }
 
-    @DeleteMapping("/name")
+    @DeleteMapping("/name/{name}")
     public ResponseEntity<Void> deleteCatalog(@RequestParam String name){
         if (catalogService.deleteCatalog(name)){
             return ResponseEntity.noContent().build();
