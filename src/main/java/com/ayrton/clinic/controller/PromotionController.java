@@ -43,7 +43,7 @@ public class PromotionController {
         return new ResponseEntity<>(promotions, HttpStatus.OK);
     }
 
-    @GetMapping("/dicount-percent/{discountPercent}")
+    @GetMapping("/discount-percent/{discountPercent}")
     public ResponseEntity<List<Promotion>> getByDiscountPercent(@RequestParam double discountPercent){
         List<Promotion> promotions = promotionService.getByDiscountPercent(discountPercent);
         return new ResponseEntity<>(promotions, HttpStatus.OK);
@@ -55,7 +55,7 @@ public class PromotionController {
         return new ResponseEntity<>(promotions, HttpStatus.OK);
     }
 
-    @GetMapping("/valid-from/{validFrom")
+    @GetMapping("/valid-from/{validFrom}")
     public ResponseEntity<List<Promotion>> getByValidFrom(@RequestParam LocalDateTime validFrom){
         List<Promotion> promotions = promotionService.getByValidFrom(validFrom);
         return new ResponseEntity<>(promotions, HttpStatus.OK);

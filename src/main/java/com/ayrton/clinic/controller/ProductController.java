@@ -49,7 +49,7 @@ public class ProductController {
         return  new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-    @GetMapping("/last-restock-date/{lastRestockDate")
+    @GetMapping("/last-restock-date/{lastRestockDate}")
     public ResponseEntity<List<Product>> getByLastRestockDate(@RequestParam LocalDateTime lastRestockDate){
         List<Product> products = productService.getByLastRestockDate(lastRestockDate);
         return new ResponseEntity<>(products, HttpStatus.OK);
