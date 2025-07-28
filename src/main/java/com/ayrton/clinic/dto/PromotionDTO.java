@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class PromotionDTO {
-    @NotNull
-    private String id;
+
 
     @NotNull
     @Size(min = 0, max = 50)

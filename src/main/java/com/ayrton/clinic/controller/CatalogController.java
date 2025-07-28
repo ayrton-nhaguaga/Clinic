@@ -31,7 +31,7 @@ public class CatalogController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Optional<Catalog>> getById(@RequestParam String id){
+    public ResponseEntity<Optional<Catalog>> getById(@PathVariable String id){
         Optional<Catalog> catalog = catalogService.getById(id);
         return new ResponseEntity<>(catalog, HttpStatus.OK);
     }
@@ -54,19 +54,19 @@ public class CatalogController {
         return new ResponseEntity<>(catalogs, HttpStatus.OK);
     }
 
-    @PutMapping("/name/{name}")
-    public ResponseEntity<List<Catalog>> updateCatalogByName(@RequestParam String name, @RequestBody CatalogDTO dto){
-        List<Catalog> updatedList = catalogService.updateCatalogByName(name, dto);
+    @PutMapping("/id/{id}")
+    public ResponseEntity<Optional<Catalog>> updateCatalogByName(@PathVariable String id, @RequestBody CatalogDTO dto){
+        Optional<Catalog> catalog = catalogService.updateCatalogByName(id, dto);
 
-        if (updatedList.isEmpty()) {
+        if (!catalog.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.ok(updatedList);
+        return ResponseEntity.ok(catalog);
     }
 
-    @DeleteMapping("/name/{name}")
-    public ResponseEntity<Void> deleteCatalog(@RequestParam String name){
-        if (catalogService.deleteCatalog(name)){
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteCatalog(@PathVariable String id){
+        if (catalogService.deleteCatalog(id)){
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

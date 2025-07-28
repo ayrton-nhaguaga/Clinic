@@ -73,20 +73,20 @@ public class PromotionController {
         return new ResponseEntity<>(promotions, HttpStatus.OK);
     }
 
-    @PutMapping("/title/{title}")
-    public ResponseEntity<List<Promotion>> updatePromotion(@RequestParam String title, @RequestBody PromotionDTO dto){
-        List<Promotion> updatedList = promotionService.updatePromotion(title, dto);
+    @PutMapping("/id/{id}")
+    public ResponseEntity<Optional<Promotion>> updatePromotion(@PathVariable String id, @RequestBody PromotionDTO dto){
+        Optional<Promotion> promotion = promotionService.updatePromotion(id, dto);
 
-        if (updatedList.isEmpty()){
+        if (!promotion.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
         }
-        return ResponseEntity.ok(updatedList);
+        return ResponseEntity.ok(promotion);
     }
 
-    @DeleteMapping("/title/{title}")
-    public ResponseEntity<Void> deletePromotion(@RequestParam String title){
-        if (promotionService.deletePromotion(title)){
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deletePromotion(@PathVariable String id){
+        if (promotionService.deletePromotion(id)){
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

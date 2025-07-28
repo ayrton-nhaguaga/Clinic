@@ -11,8 +11,7 @@ import java.util.List;
 
 @Data
 public class EmployeeDTO {
-    @NotNull
-    private String id;
+
 
     @NotNull
     @Size(min = 0, max = 100)

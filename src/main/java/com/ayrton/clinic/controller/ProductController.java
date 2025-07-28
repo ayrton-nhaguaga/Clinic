@@ -55,19 +55,19 @@ public class ProductController {
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
-    @PutMapping("/name/{name}")
-    public ResponseEntity<List<Product>> updateProduct(@RequestParam String name, @RequestBody ProductDTO dto){
-        List<Product> updatedList = productService.updateProduct(name, dto);
+    @PutMapping("/id/{id}")
+    public ResponseEntity<Optional<Product>> updateProduct(@PathVariable String id, @RequestBody ProductDTO dto){
+        Optional<Product> product = productService.updateProduct(id, dto);
 
-        if (updatedList.isEmpty()){
+        if (!product.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.ok(updatedList);
+        return ResponseEntity.ok(product);
     }
 
-    @DeleteMapping("/name/{name}")
-    public ResponseEntity<Void> deleteProductByName(@RequestParam String name){
-        if (productService.deleteProductByName(name)){
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteProductByName(@PathVariable String id){
+        if (productService.deleteProductByName(id)){
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

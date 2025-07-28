@@ -18,7 +18,6 @@ public class FeedbackService {
 
     public Feedback createFeedback(FeedbackDTO dto){
         Feedback feedback = new Feedback();
-        feedback.setId(dto.getId());
         feedback.setUserId(dto.getUserId());
         feedback.setBookingId(dto.getBookingId());
         feedback.setRating(dto.getRating());
@@ -51,15 +50,13 @@ public class FeedbackService {
         return feedbackRepository.findByCreatedAt(createdAt);
     }
 
-    public boolean deleteFeedback(String bookingId) {
-        Optional<Feedback> feedbackOpt = feedbackRepository.findByBookingId(bookingId);
-
-        if (feedbackOpt.isPresent()) {
-            feedbackRepository.delete(feedbackOpt.get());
-            return true;
-        }
-
-        return false;
+    public boolean deleteFeedback(String id) {
+        return feedbackRepository.findById(id)
+                .map(feedback -> {
+                    feedbackRepository.delete(feedback);
+                    return true;
+                })
+                .orElse(false);
     }
 
 }

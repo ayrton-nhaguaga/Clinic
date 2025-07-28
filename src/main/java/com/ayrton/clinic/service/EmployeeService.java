@@ -17,7 +17,6 @@ public class EmployeeService {
 
     public Employee createEmployee(EmployeeDTO dto){
         Employee employee = new Employee();
-        employee.setId(dto.getId());
         employee.setName(dto.getName());
         employee.setEmail(dto.getEmail());
         employee.setPhone(dto.getPhone());
@@ -51,27 +50,23 @@ public class EmployeeService {
         return employeeRepository.findByRating(rating);
     }
 
-    public List<Employee> updateEmployee(String name, EmployeeDTO dto){
-        List<Employee> exists = employeeRepository.findByNameIgnoreCase(name);
-
-        for (Employee e : exists){
-            e.setName(dto.getName());
-            e.setEmail(dto.getEmail());
-            e.setPhone(dto.getPhone());
-            e.setSchedules(dto.getSchedules());
-            e.setSpeciality(dto.getSpeciality());
-            employeeRepository.save(e);
-        }
-        return exists;
+    public Optional<Employee> updateEmployee(String id, EmployeeDTO dto){
+        return employeeRepository.findById(id)
+                .map(employee -> {
+                    employee.setName(dto.getName());
+                    employee.setEmail(dto.getEmail());
+                    employee.setPhone(dto.getPhone());
+                    employee.setSchedules(dto.getSchedules());
+                    employee.setSpeciality(dto.getSpeciality());
+                    return employeeRepository.save(employee);
+                });
     }
 
-    public boolean deleteEmployee(String name){
-        List<Employee> employees = employeeRepository.findByNameIgnoreCase(name);
-
-        if (!employees.isEmpty()){
-            employeeRepository.deleteAll(employees);
-            return true;
-        }
-        return false;
+    public boolean deleteEmployee(String id){
+        return employeeRepository.findById(id)
+                .map(employee -> {
+                    employeeRepository.delete(employee);
+                    return true;
+                }).orElse(false);
     }
 }

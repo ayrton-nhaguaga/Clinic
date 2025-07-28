@@ -60,19 +60,19 @@ public class EmployeeController {
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
-    @PutMapping("/name")
-    public ResponseEntity<List<Employee>> updateEmployee(@RequestParam String name, @RequestBody EmployeeDTO dto){
-        List<Employee> updatedList = employeeService.updateEmployee(name, dto);
+    @PutMapping("/id/{id}")
+    public ResponseEntity<Optional<Employee>> updateEmployee(@PathVariable String id, @RequestBody EmployeeDTO dto){
+        Optional<Employee> employee = employeeService.updateEmployee(id, dto);
 
-        if (updatedList.isEmpty()) {
+        if (!employee.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.ok(updatedList);
+        return ResponseEntity.ok(employee);
     }
 
-    @DeleteMapping("/name")
-    public ResponseEntity<Void> deleteEmployee(@RequestParam String name){
-        if (employeeService.deleteEmployee(name)){
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable String id){
+        if (employeeService.deleteEmployee(id)){
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

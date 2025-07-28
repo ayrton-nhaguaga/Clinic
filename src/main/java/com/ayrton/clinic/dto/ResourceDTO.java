@@ -7,8 +7,7 @@ import lombok.Data;
 @Data
 public class ResourceDTO {
 
-    @NotNull
-    private String id;
+
 
     @NotNull
     @Size(min = 0, max = 50)

@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class FeedbackDTO {
-    @NotNull
-    private String id;
+
 
     @NotNull
     private String userId;

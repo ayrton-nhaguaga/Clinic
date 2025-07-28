@@ -54,19 +54,19 @@ public class ResourceController {
         return new ResponseEntity<>(resources, HttpStatus.OK);
     }
 
-    @PutMapping("/name/{name}")
-    public ResponseEntity<List<Resource>> updateResource(@RequestParam String name, @RequestBody ResourceDTO dto){
-        List<Resource> updatedList = resourceService.updateResource(name, dto);
+    @PutMapping("/id/{id}")
+    public ResponseEntity<Optional<Resource>> updateResource(@PathVariable String id, @RequestBody ResourceDTO dto){
+        Optional<Resource> resource = resourceService.updateResource(id, dto);
 
-        if (updatedList.isEmpty()) {
+        if (!resource.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.ok(updatedList);
+        return ResponseEntity.ok(resource);
     }
 
-    @DeleteMapping("/name/{name}")
-    public ResponseEntity<Void> deleteResource(@RequestParam String name){
-        if (resourceService.deleteResource(name)){
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteResource(@PathVariable String id){
+        if (resourceService.deleteResource(id)){
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

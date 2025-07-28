@@ -18,7 +18,6 @@ public class PromotionService {
 
     public Promotion createPromotion(PromotionDTO dto){
         Promotion promotion = new Promotion();
-        promotion.setId(dto.getId());
         promotion.setTitle(dto.getTitle());
         promotion.setDescription(dto.getDescription());
         promotion.setDiscountPercent(dto.getDiscountPercent());
@@ -83,28 +82,25 @@ public class PromotionService {
 
 
 
-    public List<Promotion> updatePromotion(String title, PromotionDTO dto){
-        List<Promotion> exits = promotionRepository.findByTitleIgnoreCase(title);
-
-        for (Promotion p : exits){
-            p.setTitle(dto.getTitle());
-            p.setDescription(dto.getDescription());
-            p.setDiscountPercent(dto.getDiscountPercent());
-            p.setCode(dto.getCode());
-            p.setValidTo(dto.getValidTo());
-            p.setActive(dto.isActive());
-            promotionRepository.save(p);
-        }
-        return  exits;
+    public Optional<Promotion> updatePromotion(String id, PromotionDTO dto){
+        return promotionRepository.findById(id)
+                .map(promotion -> {
+                    promotion.setTitle(dto.getTitle());
+                    promotion.setDescription(dto.getDescription());
+                    promotion.setDiscountPercent(dto.getDiscountPercent());
+                    promotion.setCode(dto.getCode());
+                    promotion.setValidTo(dto.getValidTo());
+                    promotion.setActive(dto.isActive());
+                    return promotionRepository.save(promotion);
+                });
     }
 
-    public boolean deletePromotion(String title){
-        List<Promotion> promotions = promotionRepository.findByTitleIgnoreCase(title);
-
-        if (!promotions.isEmpty()){
-            promotionRepository.deleteAll(promotions);
-            return true;
-        }
-        return false;
+    public boolean deletePromotion(String id){
+        return promotionRepository.findById(id)
+                .map(promotion -> {
+                    promotionRepository.delete(promotion);
+                    return true;
+                })
+                .orElse(false);
     }
 }

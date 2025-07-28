@@ -35,14 +35,14 @@ public class BookingService {
     PromotionRepository promotionRepository;
 
     public Booking createBooking(BookingDTO dto) {
-        // 1. Buscar o serviço (Catalog) para saber duração
+        //Buscar o serviço (Catalog) para saber duração
         Catalog service = catalogRepository.findById(dto.getServiceId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Serviço não encontrado"));
 
         LocalDateTime start = dto.getAppointmentDate();
         LocalDateTime end = start.plusMinutes(service.getDurationMinutes());
 
-        // 2. Verificar conflito de agendamento com funcionário
+        //Verificar conflito de agendamento com funcionário
         List<Booking> employeeConflicts = bookingRepository.findOverlappingBookings(
                 dto.getEmployeeId(), start, end
         );
@@ -51,7 +51,7 @@ public class BookingService {
                     "Funcionário já possui agendamento nesse intervalo.");
         }
 
-        // 3. Verificar se recursos estão disponíveis
+        //Verificar se recursos estão disponíveis
         List<String> resourceIds = dto.getResourceIds() != null ? dto.getResourceIds() : List.of();
         for (String resourceId : resourceIds) {
             boolean conflict = resourceUsageRepository.existsByResourceIdAndStartTimeBeforeAndEndTimeAfter(
@@ -63,7 +63,7 @@ public class BookingService {
             }
         }
 
-        // 4. Criar o Booking
+        //Criar o Booking
         Booking booking = new Booking();
         booking.setClientId(dto.getClientId());
         booking.setEmployeeId(dto.getEmployeeId());
@@ -76,7 +76,7 @@ public class BookingService {
 
         booking = bookingRepository.save(booking); // salvar primeiro para pegar o ID
 
-        // 5. Criar ResourceUsage para cada recurso
+        //Criar ResourceUsage para cada recurso
         for (String resourceId : resourceIds) {
             ResourceUsage usage = new ResourceUsage();
             usage.setBookingId(booking.getId());
@@ -121,7 +121,7 @@ public class BookingService {
             if (promotion.isActive() && isValidNow(promotion)) {
                 double discount = price * (promotion.getDiscountPercent() / 100.0);
 
-                // Opcional: se quiser apenas "usar" uma vez
+                //se quiser apenas usar uma vez
                 promotion.setActive(false);
                 promotionRepository.save(promotion);
 

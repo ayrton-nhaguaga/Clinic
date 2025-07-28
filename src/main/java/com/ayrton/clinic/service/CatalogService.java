@@ -17,7 +17,6 @@ public class CatalogService {
 
     public Catalog createCatalog(CatalogDTO dto){
         Catalog catalog = new Catalog();
-        catalog.setId(dto.getId());
         catalog.setName(dto.getName());
         catalog.setDescription(dto.getDescription());
         catalog.setPrice(dto.getPrice());
@@ -45,26 +44,23 @@ public class CatalogService {
         return catalogRepository.findByDurationMinutes(durationMinutes);
     }
 
-    public List<Catalog> updateCatalogByName(String name, CatalogDTO dto){
-        List<Catalog> exists = catalogRepository.findByNameIgnoreCase(name);
-
-        for (Catalog c : exists){
-            c.setName(dto.getName());
-            c.setDescription(dto.getDescription());
-            c.setPrice(dto.getPrice());
-            c.setDurationMinutes(dto.getDurationMinutes());
-            catalogRepository.save(c);
-        }
-        return exists;
+    public Optional<Catalog> updateCatalogByName(String id, CatalogDTO dto){
+        return catalogRepository.findById(id)
+                .map(catalog -> {
+                    catalog.setName(dto.getName());
+                    catalog.setDescription(dto.getDescription());
+                    catalog.setPrice(dto.getPrice());
+                    catalog.setDurationMinutes(dto.getDurationMinutes());
+                    return catalogRepository.save(catalog);
+                });
     }
 
-    public boolean deleteCatalog(String name){
-        List<Catalog> catalogs = catalogRepository.findByNameIgnoreCase(name);
-
-        if (!catalogs.isEmpty()){
-            catalogRepository.deleteAll(catalogs);
-            return true;
-        }
-        return false;
+    public boolean deleteCatalog(String id){
+        return catalogRepository.findById(id)
+                .map(catalog -> {
+                    catalogRepository.delete(catalog);
+                    return true;
+                })
+                .orElse(false);
     }
 }

@@ -7,8 +7,7 @@ import lombok.Data;
 @Data
 public class CatalogDTO {
 
-    @NotNull
-    private String id;
+
 
     @NotNull
     @Size(min = 0, max = 75)

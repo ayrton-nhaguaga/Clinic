@@ -17,7 +17,6 @@ public class ResourceService {
 
     public Resource createResource(ResourceDTO dto){
         Resource resource = new Resource();
-        resource.setId(dto.getId());
         resource.setName(dto.getName());
         resource.setType(dto.getType());
         resource.setActive(dto.isActive());
@@ -44,25 +43,22 @@ public class ResourceService {
         return resourceRepository.findByActive(active);
     }
 
-    public List<Resource> updateResource(String name, ResourceDTO dto){
-        List<Resource> exists = resourceRepository.findByNameIgnoreCase(name);
-
-        for (Resource r : exists){
-            r.setName(dto.getName());
-            r.setType(dto.getType());
-            r.setActive(dto.isActive());
-            resourceRepository.save(r);
-        }
-        return exists;
+    public Optional<Resource> updateResource(String id, ResourceDTO dto){
+        return resourceRepository.findById(id)
+                .map(resource -> {
+                    resource.setName(dto.getName());
+                    resource.setType(dto.getType());
+                    resource.setActive(dto.isActive());
+                    return resourceRepository.save(resource);
+                });
     }
 
-    public boolean deleteResource(String name){
-        List<Resource> resources = resourceRepository.findByNameIgnoreCase(name);
-
-        if (!resources.isEmpty()){
-            resourceRepository.deleteAll(resources);
-            return true;
-        }
-        return  false;
+    public boolean deleteResource(String id){
+        return resourceRepository.findById(id)
+                .map(resource -> {
+                    resourceRepository.delete(resource);
+                    return true;
+                })
+                .orElse(false);
     }
 }

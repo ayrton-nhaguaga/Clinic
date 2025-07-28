@@ -32,7 +32,7 @@ public class FeedbackController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Optional<Feedback>> getById(@RequestParam String id){
+    public ResponseEntity<Optional<Feedback>> getById(@PathVariable String id){
         Optional<Feedback> feedback = feedbackService.getById(id);
         return new ResponseEntity<>(feedback, HttpStatus.OK);
     }
@@ -61,9 +61,9 @@ public class FeedbackController {
         return new ResponseEntity<>(feedbacks, HttpStatus.OK);
     }
 
-    @DeleteMapping("/by-booking/{bookingId}")
-    public ResponseEntity<Void> deleteFeedbackByBooking(@PathVariable String bookingId) {
-        boolean deleted = feedbackService.deleteFeedback(bookingId);
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Void> deleteFeedbackByBooking(@PathVariable String id) {
+        boolean deleted = feedbackService.deleteFeedback(id);
 
         if (deleted) {
             return ResponseEntity.noContent().build(); // HTTP 204

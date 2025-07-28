@@ -18,7 +18,6 @@ public class ProductService {
 
     public Product createProduct(ProductDTO dto){
         Product product = new Product();
-        product.setId(dto.getId());
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setQuantity(dto.getQuantity());
@@ -47,26 +46,23 @@ public class ProductService {
         return productRepository.findByLastRestockDate(lastRestockDate);
     }
 
-    public List<Product> updateProduct(String name, ProductDTO dto){
-        List<Product> exists = productRepository.findByNameIgnoreCase(name);
-
-        for (Product p : exists){
-            p.setName(dto.getName());
-            p.setDescription(dto.getDescription());
-            p.setQuantity(dto.getQuantity());
-            p.setUnit(dto.getUnit());
-            productRepository.save(p);
-        }
-        return exists;
+    public Optional<Product> updateProduct(String id, ProductDTO dto){
+        return productRepository.findById(id)
+                .map(product -> {
+                    product.setName(dto.getName());
+                    product.setDescription(dto.getDescription());
+                    product.setQuantity(dto.getQuantity());
+                    product.setUnit(dto.getUnit());
+                    return productRepository.save(product);
+                });
     }
 
-    public boolean deleteProductByName(String name){
-        List<Product> products = productRepository.findByNameIgnoreCase(name);
-
-        if (!products.isEmpty()){
-            productRepository.deleteAll(products);
-            return true;
-        }
-        return false;
+    public boolean deleteProductByName(String id){
+        return productRepository.findById(id)
+                .map(product -> {
+                    productRepository.delete(product);
+                    return true;
+                })
+                .orElse(false);
     }
 }
